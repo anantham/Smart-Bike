@@ -4,5 +4,6 @@
     <string name="app_name">SmartHelmet</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="emergency">Set Emergency Contact Numbers</string>
 
 </resources>
