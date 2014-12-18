@@ -16,7 +16,7 @@ public class Home extends ActionBarActivity {
     //CONSTANTS
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
-    public static final String EMERGENCY_NUMBER = "com.sangam.smarthelmet_emergencynumbermasterkey";
+    public static final String EMERGENCY_NUMBER_MASTER = "com.sangam.smarthelmet_emergencynumbermasterkey";
     public static final String EMERGENCY_NUMBER1 = "com.sangam.smarthelmet_emergencynumber1key";
     public static final String EMERGENCY_NUMBER2 = "com.sangam.smarthelmet_emergencynumber2key";
     public static final String EMERGENCY_NUMBER3 = "com.sangam.smarthelmet_emergencynumber3key";
@@ -51,7 +51,8 @@ public class Home extends ActionBarActivity {
 
     private void restore_data() {
         // here we get a handle on the shared preferences
-        SharedPreferences sharedPref = this.getSharedPreferences(EMERGENCY_NUMBER, Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences(EMERGENCY_NUMBER_MASTER, Context.MODE_PRIVATE);
+
         // Here we get the shared preferences values into usable variables
         emergency_number1 = sharedPref.getLong(EMERGENCY_NUMBER1, DEFAULT_EMERGENCY_NUMBER);
         emergency_number2 = sharedPref.getLong(EMERGENCY_NUMBER2, DEFAULT_EMERGENCY_NUMBER);
@@ -61,7 +62,7 @@ public class Home extends ActionBarActivity {
         if(emergency_number1 != DEFAULT_EMERGENCY_NUMBER || emergency_number2 != DEFAULT_EMERGENCY_NUMBER || emergency_number3 != DEFAULT_EMERGENCY_NUMBER) {
             //change color of button which is used to Set new emergency numbers AND change its text
             Button emergency = (Button) findViewById(R.id.button_emergency);
-            emergency.setTextColor(Color.GREEN);
+            emergency.setTextColor(Color.BLUE);
             emergency.setText("Change Emergency Numbers");
         }
     }
