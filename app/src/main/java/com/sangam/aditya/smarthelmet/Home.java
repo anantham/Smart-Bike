@@ -40,7 +40,13 @@ public class Home extends ActionBarActivity {
     }
 
     public void set_emergency_number(View v){
-        
+        /* Make an intent from "this" ie Home - the class to EditEmergencyNumber the class */
+        Intent intent = new Intent(this, EditEmergencyNumber.class);
+        /*
+        For now we don't have any Extra to send along with this intent
+        So lets just launch the next activity.
+        */
+        startActivity(intent);
     }
 
     private void restore_data() {
