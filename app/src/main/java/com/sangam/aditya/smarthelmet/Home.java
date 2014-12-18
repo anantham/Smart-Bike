@@ -1,12 +1,14 @@
 package com.sangam.aditya.smarthelmet;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 
 
@@ -37,16 +39,20 @@ public class Home extends ActionBarActivity {
         restore_data();
     }
 
+    public void set_emergency_number(View v){
+        
+    }
+
     private void restore_data() {
         // here we get a handle on the shared preferences
         SharedPreferences sharedPref = this.getSharedPreferences(EMERGENCY_NUMBER, Context.MODE_PRIVATE);
         // Here we get the shared preferences values into usable variables
-        emergency_number1=sharedPref.getLong(EMERGENCY_NUMBER1, DEFAULT_EMERGENCY_NUMBER);
-        emergency_number2=sharedPref.getLong(EMERGENCY_NUMBER2, DEFAULT_EMERGENCY_NUMBER);
-        emergency_number3=sharedPref.getLong(EMERGENCY_NUMBER3, DEFAULT_EMERGENCY_NUMBER);
+        emergency_number1 = sharedPref.getLong(EMERGENCY_NUMBER1, DEFAULT_EMERGENCY_NUMBER);
+        emergency_number2 = sharedPref.getLong(EMERGENCY_NUMBER2, DEFAULT_EMERGENCY_NUMBER);
+        emergency_number3 = sharedPref.getLong(EMERGENCY_NUMBER3, DEFAULT_EMERGENCY_NUMBER);
 
         // Now if at least one such number has been saved then
-        if(emergency_number1!=DEFAULT_EMERGENCY_NUMBER || emergency_number2!=DEFAULT_EMERGENCY_NUMBER || emergency_number3!=DEFAULT_EMERGENCY_NUMBER) {
+        if(emergency_number1 != DEFAULT_EMERGENCY_NUMBER || emergency_number2 != DEFAULT_EMERGENCY_NUMBER || emergency_number3 != DEFAULT_EMERGENCY_NUMBER) {
             //change color of button which is used to Set new emergency numbers AND change its text
             Button emergency = (Button) findViewById(R.id.button_emergency);
             emergency.setTextColor(Color.GREEN);
