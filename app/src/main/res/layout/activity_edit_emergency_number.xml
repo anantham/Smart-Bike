@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/emergencyhead"
+        android:text="@string/emergency_head"
         android:id="@+id/textView2"
         android:textSize="27sp"
         android:layout_alignParentTop="true"
