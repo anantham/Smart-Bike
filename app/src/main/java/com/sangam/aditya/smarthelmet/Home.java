@@ -1,6 +1,5 @@
 package com.sangam.aditya.smarthelmet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,12 +7,10 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.RemoteException;
+import android.os.Bundle;
 import android.provider.Contacts;
-import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -22,34 +19,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.gms.common.ConnectionResult;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static com.google.android.gms.common.GooglePlayServicesUtil.isGooglePlayServicesAvailable;
 
 
-public class Home extends ActionBarActivity implements
-        TextToSpeech.OnInitListener {
+public class Home extends ActionBarActivity implements TextToSpeech.OnInitListener {
     //CONSTANTS
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
-    public static final String EMERGENCY_NUMBER_MASTER = "com.sangam.smarthelmet_emergencynumbermasterkey";
-    public static final String EMERGENCY_NUMBER1 = "com.sangam.smarthelmet_emergencynumber1key";
-    public static final String EMERGENCY_NUMBER2 = "com.sangam.smarthelmet_emergencynumber2key";
-    public static final String EMERGENCY_NUMBER3 = "com.sangam.smarthelmet_emergencynumber3key";
+    public static final String EMERGENCY_NUMBER_MASTER  = "com.sangam.smarthelmet_emergencynumbermasterkey";
+    public static final String EMERGENCY_NUMBER1         = "com.sangam.smarthelmet_emergencynumber1key";
+    public static final String EMERGENCY_NUMBER2         = "com.sangam.smarthelmet_emergencynumber2key";
+    public static final String EMERGENCY_NUMBER3         = "com.sangam.smarthelmet_emergencynumber3key";
 
     // this is the default number which will be stored as emergency numbers
     private static final long DEFAULT_EMERGENCY_NUMBER = 0;
@@ -60,44 +46,69 @@ public class Home extends ActionBarActivity implements
     long emergency_number2;
     long emergency_number3;
 
+    // This flag variable is used to keep track of whether the user is travelling or not
     boolean journey = false;
-    String readfromwebpage;
 
+    // This is used to store the response from the server
+    String server_response;
+
+    // This is used to handle the conversion from text to speech
     TextToSpeech textToSpeech;
+
+    //delay between successive pinging of server asking about status in milliseconds
+    long delay = 7000;
+
+    //While sending a SMS we use a test number for now
+    String test_number = "8122514058";
+
+    // the URL at which the required data is hosted
+    String server_URL = "http://spider.nitt.edu/~adityap/dead.php";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        // Sets a listener to override on any incoming phone call and inform the user the caller's name
         handle_calls();
+
         // We get the stored emergency numbers onto application's variables
         restore_data();
-        journey=false;
 
+        // In case the journey is over, or a new journey is about to start this activity will be called ? TODO look into if this flag will be set correctly all the time
+        journey = false;
+
+        // Here we initialize it, to get ready for conversion
         textToSpeech = new TextToSpeech(this, this);
 
     }
+
+    // At the end of the activity close the handle used for text conversion and stop pinging the server
     @Override
     public void onDestroy() {
+        super.onDestroy();
+        journey = false;
         textToSpeech.shutdown();
     }
 
-    private void convertTextToSpeech() {
+    //TODO  A deprecated function - speak
+    private void say_welcome() {
         String text = "Welcome to Smart Helmet";
-        if (null == text || "".equals(text)) {
-            text = "Please give some input.";
-        }
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
     }
-    
+
+    // Set a listener to maintain a eye if any calls come the listener is defined later
     private void handle_calls() {
         TelephonyManager tm = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         tm.listen(mPhoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
+    // This function takes the phone number as  argument and returns the corresponding contact name from the list of contacts in the mobile
     public String getContactName(final String phoneNumber)
     {
         Uri uri;
         String[] projection;
+        // TODO deprecated guys! we need to use a different library
         Uri mBaseUri = Contacts.Phones.CONTENT_FILTER_URL;
         projection = new String[] { android.provider.Contacts.People.NAME };
         try {
@@ -106,8 +117,8 @@ public class Home extends ActionBarActivity implements
             projection = new String[] { "display_name" };
         }
         catch (Exception e) {
+            Log.i("Error-adi","getting contact name unsuccessful");
         }
-
 
         uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
         Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null);
@@ -116,26 +127,23 @@ public class Home extends ActionBarActivity implements
 
         if (cursor.moveToFirst())
         {
-            contactName = cursor.getString(0);
+           contactName = cursor.getString(0);
         }
-
         cursor.close();
-        cursor = null;
 
         return contactName;
     }
 
+    // This is where the incoming call listener is defined
     private PhoneStateListener mPhoneListener = new PhoneStateListener() {
+        // This function is called when we get a incoming call
         public void onCallStateChanged(int state, String incomingNumber) {
-            try {
-                Context ctx = getApplicationContext();
                 switch (state) {
                     case TelephonyManager.CALL_STATE_RINGING:
-                        // do something...
-                        TextView tv = (TextView)findViewById(R.id.textView6);
-                        tv.setText("You are getting a call from "+getContactName(incomingNumber));
-                        textToSpeechwithtring("You are getting a call from " + getContactName(incomingNumber));
-                        Log.d(incomingNumber, "Unknown phone state=" + state);
+                        // Its ringing
+                        //TextView tv = (TextView)findViewById(R.id.textView6); used for DEBUGGING TODO delete this
+                        //
+                        say_this("You are getting a call from " + getContactName(incomingNumber));
                         break;
 
                     case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -152,16 +160,16 @@ public class Home extends ActionBarActivity implements
                     default:
                         Log.d(incomingNumber, "Unknown phone state=" + state);
                 }
-            } catch (Exception e) {}
         }
     };
 
-    private void textToSpeechwithtring(String text) {
+    // This function converts the string that is passed as argument into speech and 'speaks' it
+    private void say_this(String text) {
         if (null == text || "".equals(text)) {
-            text = "Please give some input.";
+            text = "You have a Call";
         }
+        //TODO same as before, deprecated function
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-
     }
 
     // This is called when we click the change emergency numbers button
@@ -175,92 +183,80 @@ public class Home extends ActionBarActivity implements
         startActivity(intent);
     }
 
+    // This is a method that was inherited, as this class Home implements, This is called when we initialize the TextToSpeech variable in Oncreate
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             int result = textToSpeech.setLanguage(Locale.US);
-            if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("error", "This Language is not supported");
             } else {
-                convertTextToSpeech();
+                // Welcome the user to the application TODO  do we need this? it takes time for this message to be spoken, doesn't serve a purpose
+                say_welcome();
             }
         } else {
-            Log.e("error", "Initilization Failed!");
+            Log.e("error", "Initialization Failed!");
         }
         
     }
 
-
-    class TestAsynch extends AsyncTask<Void, Integer, String>
+    // This is the class used to start threads which keeps checking with the server to see if any accident has happened
+    class ping_server extends AsyncTask<Void, Integer, String>
     {
-
         protected String doInBackground(Void...arg0) {
-            Log.i("doing","backgroud");
             URL url = null;
             try {
-                url = new URL("http://spider.nitt.edu/~adityap/dead.php");
+                url = new URL(server_URL);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                Log.i("error", "1");
+                Log.i("error", "Url is not correct");
             }
-            URLConnection con = null;
-            try {
-                con = url.openConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
 
-                Log.i("error", "2");
-            }
-            InputStream in = null;
             try {
-                in = con.getInputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-
-                Log.i("error", "3");
-            }
-            String encoding = con.getContentEncoding();
-            encoding = encoding == null ? "UTF-8" : encoding;
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            byte[] buf = new byte[2048];
-            int len = 0;
-            try {
-                Log.i("error", "4");
-                while ((len = in.read(buf)) != -1)
-                {
-                    baos.write(buf, 0, len);
+                URLConnection con;
+                if (url == null) con = null;
+                else con = url.openConnection();
+                if(con == null){
+                    return null;
                 }
+                // because of the preceding if statement, we don't have to worry about con being null
+                InputStream in = con.getInputStream();
+
+                // get the encoding used by the server
+                String encoding = con.getContentEncoding();
+                encoding = encoding == null ? "UTF-8" : encoding;
+
+                // Get this temp variable which will hold all the data we fetch byte by byte
+                ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                byte[] buf = new byte[2048];
+                int len;
+                // traverse through the file and write the data into the buffer variable buf
+                while ((len = in.read(buf)) != -1) {
+                    temp.write(buf, 0, len);
+                }
+
+                // we don't need to return this as this variable is a global one
+                server_response = new String(temp.toByteArray(), encoding);
+
             } catch (IOException e) {
                 e.printStackTrace();
-
-                Log.i("error", "5");
+                Log.i("error", "unable to open a connection");
             }
 
-            try {
-                readfromwebpage= new String(baos.toByteArray(), encoding);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-
-                Log.i("error", "6");
-            }
-            Log.i("background", readfromwebpage);
             return null;
         }
 
-
         protected void onPostExecute(String result) {
-            Log.i("onpost","executed");
-            if(readfromwebpage.equals("1"))
+            // now that we have finished checking with the server
+            if(server_response.equals("1"))
             {
-                Log.i("myroom", "sendsmssuccesful");
+                Log.i("1", "deathed server sends 1");
             }
             else
             {
                 //send_sms();
-                Log.i("myroom", "unsuccessful");
+                Log.i("0", "no news, server sends 0");
             }
-
         }
     }
 
@@ -274,37 +270,26 @@ public class Home extends ActionBarActivity implements
             public void run() {
                 try {
                     while(journey) {
-
-                        Log.i("inside","thread");
-                        sleep(2000);
-                        new TestAsynch().execute();
-
+                        // wait for 'delay' milliseconds'
+                        sleep(delay);
+                        // Start a new async task to fetch data from server
+                        new ping_server().execute();
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         };
-
+        // The code above defines the thread, here we start it,
+        // A loop which keeps pinging the server URL
         thread.start();
         Log.i("thread","started");
-
-
-        // Because this requires Google Play Services
-        //send_sms();
-
-
     }
 
-    TextToSpeech ttobj;
-
-
-
-
+    // sends sms to test_number for now
     private void send_sms() {
-        Log.i("asd", "asd");
         SmsManager smsManager =     SmsManager.getDefault();
-        smsManager.sendTextMessage("8122514058", null, "Message", null, null);
+        smsManager.sendTextMessage(test_number, null, "Message", null, null);
     }
 
     private void restore_data() {
