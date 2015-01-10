@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Contacts;
@@ -19,9 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,9 +37,9 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
     public static final String EMERGENCY_NUMBER_MASTER  = "com.sangam.smarthelmet_emergencynumbermasterkey";
-    public static final String EMERGENCY_NUMBER1         = "com.sangam.smarthelmet_emergencynumber1key";
-    public static final String EMERGENCY_NUMBER2         = "com.sangam.smarthelmet_emergencynumber2key";
-    public static final String EMERGENCY_NUMBER3         = "com.sangam.smarthelmet_emergencynumber3key";
+    public static final String EMERGENCY_NUMBER1        = "com.sangam.smarthelmet_emergencynumber1key";
+    public static final String EMERGENCY_NUMBER2        = "com.sangam.smarthelmet_emergencynumber2key";
+    public static final String EMERGENCY_NUMBER3        = "com.sangam.smarthelmet_emergencynumber3key";
 
     // this is the default number which will be stored as emergency numbers
     private static final long DEFAULT_EMERGENCY_NUMBER = 0;
@@ -63,6 +67,69 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     // the URL at which the required data is hosted
     String server_URL = "http://spider.nitt.edu/~adityap/dead.php";
+
+    // classes nested inside the main class Home.java
+
+    // This is the class used to start threads which keeps checking with the server to see if any accident has happened
+    class ping_server extends AsyncTask<Void, Integer, String>
+    {
+        protected String doInBackground(Void...arg0) {
+            URL url = null;
+            try {
+                url = new URL(server_URL);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                Log.i("error", "Url is not correct");
+            }
+
+            try {
+                URLConnection con;
+                if (url == null) con = null;
+                else con = url.openConnection();
+                if(con == null){
+                    return null;
+                }
+                // because of the preceding if statement, we don't have to worry about con being null
+                InputStream in = con.getInputStream();
+
+                // get the encoding used by the server
+                String encoding = con.getContentEncoding();
+                encoding = encoding == null ? "UTF-8" : encoding;
+
+                // Get this temp variable which will hold all the data we fetch byte by byte
+                ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                byte[] buf = new byte[2048];
+                int len;
+                // traverse through the file and write the data into the buffer variable buf
+                while ((len = in.read(buf)) != -1) {
+                    temp.write(buf, 0, len);
+                }
+
+                // we don't need to return this as this variable is a global one
+                server_response = new String(temp.toByteArray(), encoding);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.i("error", "unable to open a connection");
+            }
+
+            return null;
+        }
+
+        protected void onPostExecute(String result) {
+            // now that we have finished checking with the server
+            if(server_response.equals("1"))
+            {
+                Log.i("1", "deathed server sends 1");
+            }
+            else
+            {
+                //send_sms();
+                Log.i("0", "no news, server sends 0");
+            }
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,68 +267,47 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         
     }
 
-    // This is the class used to start threads which keeps checking with the server to see if any accident has happened
-    class ping_server extends AsyncTask<Void, Integer, String>
-    {
-        protected String doInBackground(Void...arg0) {
-            URL url = null;
-            try {
-                url = new URL(server_URL);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                Log.i("error", "Url is not correct");
-            }
-
-            try {
-                URLConnection con;
-                if (url == null) con = null;
-                else con = url.openConnection();
-                if(con == null){
-                    return null;
-                }
-                // because of the preceding if statement, we don't have to worry about con being null
-                InputStream in = con.getInputStream();
-
-                // get the encoding used by the server
-                String encoding = con.getContentEncoding();
-                encoding = encoding == null ? "UTF-8" : encoding;
-
-                // Get this temp variable which will hold all the data we fetch byte by byte
-                ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                byte[] buf = new byte[2048];
-                int len;
-                // traverse through the file and write the data into the buffer variable buf
-                while ((len = in.read(buf)) != -1) {
-                    temp.write(buf, 0, len);
-                }
-
-                // we don't need to return this as this variable is a global one
-                server_response = new String(temp.toByteArray(), encoding);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.i("error", "unable to open a connection");
-            }
-
-            return null;
+    public void start_journey(View v){
+        // First start the HotSpot which will be used by the helmet to send data to server
+        Context context= v.getContext();
+        WifiManager wifiManager=(WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        if(wifiManager.isWifiEnabled())
+        {
+            wifiManager.setWifiEnabled(false);
         }
 
-        protected void onPostExecute(String result) {
-            // now that we have finished checking with the server
-            if(server_response.equals("1"))
-            {
-                Log.i("1", "deathed server sends 1");
-            }
-            else
-            {
-                //send_sms();
-                Log.i("0", "no news, server sends 0");
-            }
+        WifiConfiguration netConfig = new WifiConfiguration();
+
+        netConfig.SSID = "MyAP";
+        netConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+        netConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+        netConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+        netConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+
+        try{
+            Method setWifiApMethod = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+            boolean apstatus=(Boolean) setWifiApMethod.invoke(wifiManager, netConfig,true);
+
+            Method isWifiApEnabledmethod = wifiManager.getClass().getMethod("isWifiApEnabled");
+            while(!(Boolean)isWifiApEnabledmethod.invoke(wifiManager)){};
+            Method getWifiApStateMethod = wifiManager.getClass().getMethod("getWifiApState");
+            int apstate=(Integer)getWifiApStateMethod.invoke(wifiManager);
+            Method getWifiApConfigurationMethod = wifiManager.getClass().getMethod("getWifiApConfiguration");
+            netConfig=(WifiConfiguration)getWifiApConfigurationMethod.invoke(wifiManager);
+            Log.e("CLIENT", "\nSSID:"+netConfig.SSID+"\nPassword:"+netConfig.preSharedKey+"\n");
+
+        } catch (Exception e) {
+            Log.e(this.getClass().toString(), "", e);
         }
+
+        // Now take user to the page where the user can set the source and desti
+        Intent intent = new Intent(this, SetDestination.class);
+        startActivity(intent);
+
     }
 
-    // This is called when the user clicks the start journey button
-    public void start_journey(View v)  {
+    // This is to keep checking with the server if the accident has occurred
+    public void start_pinging()  {
 
         journey = true;
 
@@ -309,8 +355,6 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             emergency.setText("Change Emergency Numbers");
         }
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

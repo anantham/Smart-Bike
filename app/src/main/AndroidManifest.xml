@@ -2,8 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sangam.aditya.smarthelmet" >
 
-    <permission android:name="com.sangam.aditya.smarthelmet.permission.MAPS_RECEIVE" android:protectionLevel="signature"/>
-    <uses-permission android:name="com.sangam.aditya.smarthelmet.permission.MAPS_RECEIVE"/>
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -14,10 +13,24 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
+    <!--
+    The Google Maps Android API uses OpenGL ES version 2 to render the map This notifies external services of the requirement.
+    In particular, it has the effect of preventing Google Play Store from displaying your app on devices that don't support OpenGL ES
+    version 2.
+    -->
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -42,24 +55,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sangam.aditya.smarthelmet.Home" />
         </activity>
-
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="@string/google_maps_key" />
-
         <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" >
+            android:name=".SetDestination"
+            android:label="@string/title_activity_set_destination"
+            android:parentActivityName=".Home" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sangam.aditya.smarthelmet.Home" />
         </activity>
     </application>
 
-    <!-- The Google Maps Android API uses OpenGL ES version 2 to render the map This notifies external services of the requirement.
-    In particular, it has the effect of preventing Google Play Store from displaying your app on devices that don't support OpenGL ES
-    version 2. -->
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true"/>
 </manifest>
