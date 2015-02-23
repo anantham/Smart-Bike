@@ -63,6 +63,11 @@ public class Registration extends ActionBarActivity {
             return;
         }
 
+        if(number.getText().toString().length() < 10){
+            Toast.makeText(this, "Enter complete phone number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Store these numbers into memory
         editor.putLong(Home.USER_NUMBER_MASTER, Long.valueOf(number.getText().toString()));
 

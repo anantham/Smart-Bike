@@ -42,6 +42,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
     public static final String USER                     = "com.sangam.smarthelmet_UserData";
+    public static final String USER_FUEL                = "com.sangam.smarthelmet_fueldetails";
     public static final String EMERGENCY_NUMBER_MASTER  = "com.sangam.smarthelmet_emergencynumbermasterkey";
     public static final String EMERGENCY_NUMBER1        = "com.sangam.smarthelmet_emergencynumber1key";
     public static final String EMERGENCY_NUMBER2        = "com.sangam.smarthelmet_emergencynumber2key";
@@ -85,6 +86,16 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     // Variables used for SMS notification broadcast reciever
     private SMSreceiver mSMSreceiver;
     private IntentFilter mIntentFilter;
+
+    public void showProfile(View view) {
+        Intent intent = new Intent(this, ShowProfile.class);
+        startActivity(intent);
+    }
+
+    public void fuelDetails(View view) {
+        Intent intent = new Intent(this, FuelDetails.class);
+        startActivity(intent);
+    }
 
     // classes nested inside the main class Home.java
 

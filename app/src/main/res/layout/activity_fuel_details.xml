@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.sangam.aditya.smarthelmet.FuelDetails">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Fuel filled"
+        android:id="@+id/textView13"
+        android:layout_marginTop="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/button7"
+        android:layout_alignEnd="@+id/button7" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editTextfueladded"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/textView13"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        android:onClick="saveFuelData"
+        android:id="@+id/button7"
+        android:layout_marginTop="29dp"
+        android:layout_marginBottom="29dp"
+        android:layout_below="@+id/editTextfueladded"
+        android:layout_centerHorizontal="true" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listViewfueldata"
+        android:layout_below="@+id/button7"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

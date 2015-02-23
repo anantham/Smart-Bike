@@ -63,7 +63,7 @@
         </activity>
         <activity
             android:name=".Registration"
-            android:label="@string/title_activity_registration"
+            android:label="Smart Bike"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -78,6 +78,22 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sangam.aditya.smarthelmet.Registration" />
+        </activity>
+        <activity
+            android:name=".ShowProfile"
+            android:label="@string/title_activity_show_profile"
+            android:parentActivityName=".Home" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sangam.aditya.smarthelmet.Home" />
+        </activity>
+        <activity
+            android:name=".FuelDetails"
+            android:label="@string/title_activity_fuel_details"
+            android:parentActivityName=".Home" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sangam.aditya.smarthelmet.Home" />
         </activity>
     </application>
 

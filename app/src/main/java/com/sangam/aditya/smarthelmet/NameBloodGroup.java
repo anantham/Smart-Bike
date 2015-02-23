@@ -75,7 +75,7 @@ public class NameBloodGroup extends ActionBarActivity {
         Spinner spinner = (Spinner)findViewById(R.id.spinnerbikemodel);
         String model = spinner.getSelectedItem().toString();
 
-        if( bloodgroup.isEmpty() || model.isEmpty() ){
+        if( bloodgroup.isEmpty() ){
             Toast.makeText(this, "Enter your details!", Toast.LENGTH_SHORT).show();
             return;
         }
