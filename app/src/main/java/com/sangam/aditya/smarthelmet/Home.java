@@ -1,10 +1,14 @@
 package com.sangam.aditya.smarthelmet;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -15,6 +19,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -36,10 +41,19 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     //CONSTANTS
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
+    public static final String USER                     = "com.sangam.smarthelmet_UserData";
     public static final String EMERGENCY_NUMBER_MASTER  = "com.sangam.smarthelmet_emergencynumbermasterkey";
     public static final String EMERGENCY_NUMBER1        = "com.sangam.smarthelmet_emergencynumber1key";
     public static final String EMERGENCY_NUMBER2        = "com.sangam.smarthelmet_emergencynumber2key";
     public static final String EMERGENCY_NUMBER3        = "com.sangam.smarthelmet_emergencynumber3key";
+    public static final String USER_NUMBER_MASTER       = "com.sangam.smarthelmet_usernumberkey";
+    public static final String USER_NUMBER_NAME         = "com.sangam.smarthelmet_user_name";
+
+    public static final String USER_BLOOD_GROUP       = "com.sangam.smarthelmet_userbloodgroup";
+    public static final String USER_BIKE_MODEL         = "com.sangam.smarthelmet_userbikemodel";
+
+    public static final String USER_REGISTRATION         = "com.sangam.smarthelmet_registrationstatus";
+
 
     // this is the default number which will be stored as emergency numbers
     private static final long DEFAULT_EMERGENCY_NUMBER = 0;
@@ -67,6 +81,10 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     // the URL at which the required data is hosted
     String server_URL = "http://spider.nitt.edu/~adityap/dead.php";
+
+    // Variables used for SMS notification broadcast reciever
+    private SMSreceiver mSMSreceiver;
+    private IntentFilter mIntentFilter;
 
     // classes nested inside the main class Home.java
 
@@ -131,10 +149,20 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     }
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        AudioManager am;
+        am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
+        //am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+
+        mSMSreceiver = new SMSreceiver();
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
+        registerReceiver(mSMSreceiver, mIntentFilter);
 
         // Sets a listener to override on any incoming phone call and inform the user the caller's name
         handle_calls();
@@ -153,10 +181,24 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     // At the end of the activity close the handle used for text conversion and stop pinging the server
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        Log.i("Destoy", "Time");
         journey = false;
         textToSpeech.shutdown();
+        unregisterReceiver(mSMSreceiver);
+        AudioManager am;
+        am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
+        //am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        BluetoothAdapter.getDefaultAdapter().disable();
+        super.onDestroy();
     }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.i("Stop", "Time");
+    }
+
 
     //TODO  A deprecated function - speak
     private void say_welcome() {
@@ -204,27 +246,45 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     // This is where the incoming call listener is defined
     private PhoneStateListener mPhoneListener = new PhoneStateListener() {
         // This function is called when we get a incoming call
+        int call_came =0;
         public void onCallStateChanged(int state, String incomingNumber) {
                 switch (state) {
                     case TelephonyManager.CALL_STATE_RINGING:
                         // Its ringing
                         //TextView tv = (TextView)findViewById(R.id.textView6); used for DEBUGGING TODO delete this
-                        //
+                        //say_this("You are getting a call from " + getContactName(incomingNumber));
+                        AudioManager am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
+                        //am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        call_came=1;
                         say_this("You are getting a call from " + getContactName(incomingNumber));
+
                         break;
 
                     case TelephonyManager.CALL_STATE_OFFHOOK:
                         // do something...
-
+                        if(call_came==1)
+                        {
+                            say_this("You recieved a call from " + getContactName(incomingNumber));
+                            call_came=0;
+                        }
                         Log.d(incomingNumber, "Unknown phone state=" + state);
                         break;
 
                     case TelephonyManager.CALL_STATE_IDLE:
                         // do something...
-
+                        if(call_came==1)
+                        {
+                            say_this("You recieved a call from " + getContactName(incomingNumber));
+                            call_came=0;
+                        }
                         Log.d(incomingNumber, "Unknown phone state=" + state);
                         break;
                     default:
+                        if(call_came==1)
+                        {
+                            say_this("You recieved a call from " + getContactName(incomingNumber));
+                            call_came=0;
+                        }
                         Log.d(incomingNumber, "Unknown phone state=" + state);
                 }
         }
@@ -232,6 +292,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     // This function converts the string that is passed as argument into speech and 'speaks' it
     private void say_this(String text) {
+
         if (null == text || "".equals(text)) {
             text = "You have a Call";
         }
@@ -267,7 +328,44 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         
     }
 
+    private class SMSreceiver extends BroadcastReceiver
+    {
+        private final String TAG = this.getClass().getSimpleName();
+
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            Bundle extras = intent.getExtras();
+
+            String strMessage = "";
+
+            if ( extras != null )
+            {
+                Object[] smsextras = (Object[]) extras.get( "pdus" );
+
+                for ( int i = 0; i < smsextras.length; i++ )
+                {
+                    SmsMessage smsmsg = SmsMessage.createFromPdu((byte[]) smsextras[i]);
+
+                    String strMsgBody = smsmsg.getMessageBody().toString();
+                    String strMsgSrc = smsmsg.getOriginatingAddress();
+
+                    strMessage += "You received a SMS from " + getContactName(strMsgSrc) + " : " + strMsgBody;
+                    say_this(strMessage);
+                    Log.i(TAG, strMessage);
+                }
+
+            }
+
+        }
+
+    }
+
+
     public void start_journey(View v){
+        // Switching on the Bluetooth automatically
+        BluetoothAdapter.getDefaultAdapter().enable();
+
         // First start the HotSpot which will be used by the helmet to send data to server
         Context context= v.getContext();
         WifiManager wifiManager=(WifiManager) context.getSystemService(Context.WIFI_SERVICE);

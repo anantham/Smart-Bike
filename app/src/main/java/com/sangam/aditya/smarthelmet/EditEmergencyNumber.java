@@ -86,8 +86,8 @@ public class EditEmergencyNumber extends ActionBarActivity {
     }
 
     private boolean valid_numbers(String no1,String no2,String no3) {
-        //check if the entered numbers are valid
         if(no1.length()!=11 && !Pattern.matches("[a-zA-Z]+", no1)){
+            //check if the entered numbers are valid
             Toast.makeText(this, "Enter a 10 digit phone number (first entry)", Toast.LENGTH_SHORT).show();
             return false;
         }

@@ -28,10 +28,18 @@ public class SetDestination extends ActionBarActivity {
     Long longitude;
     Long latitude;
 
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_destination);
+
+
+        //sms part
+
 
         // Initialize a Location manager variable
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -99,7 +107,9 @@ public class SetDestination extends ActionBarActivity {
         alert.show();
     }
 
-    //a function to check if Internet is available
+
+
+        //a function to check if Internet is available
     public boolean isNetworkConnected(){
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
@@ -126,10 +136,13 @@ public class SetDestination extends ActionBarActivity {
     }
 
 
+
+
     // Launches the google maps application with the user's desired destination
     public void launch_navigation(View v){
         // Get the address the user entered
         EditText source = (EditText)findViewById(R.id.editTextSource);
+
         EditText destination = (EditText)findViewById(R.id.editTextDestination);
 
         if(destination == null || destination.getText().toString().matches("")){
@@ -140,7 +153,7 @@ public class SetDestination extends ActionBarActivity {
             Toast.makeText(this, "Please enter source address and try again", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Initialize a Location manager variable
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
