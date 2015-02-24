@@ -17,10 +17,10 @@ def getData():
     print "pin1 has "+pin1
     print "pin2 has "+pin2
     return (pin1,pin2)
-
+'''
 def storeData(tup):
     # Open database connection
-    db = MySQLdb.connect( "localhost","root","","smartbike" )
+    db = MySQLdb.connect( "7cfcc050.ngrok.com","root","toor","smarthelmet" )
 
     # prepare a cursor object using cursor() method
     cursor = db.cursor()
@@ -29,8 +29,9 @@ def storeData(tup):
     value2 = int(tup[1])
 
     # Prepare SQL query to INSERT a record into the database.
-    sql = "INSERT INTO `smartbike`.`master` (`ID`, `Name`, `Accident`) VALUES ('"+str(value1)+"', '"+str(value2)+"', '0');"
-    
+    #sql = "INSERT INTO `smartbike`.`master` (`ID`, `Name`, `Accident`) VALUES ('"+str(value1)+"', '"+str(value2)+"', '0');"
+    sql = "INSERT INTO `smarthelmet`.`a8122514058` (`date`, `time`, `rev`) VALUES ('a"+datetime.datetime.strftime(datetime.datetime.now(), '%d%m')+"', NOW(), '"+str(value1)+"');"
+    print sql
     try:
        # Execute the SQL command
        cursor.execute(sql)
@@ -43,6 +44,15 @@ def storeData(tup):
        
     # disconnect from server
     db.close()
+'''
+
+def storeData(tup):
+    value1 = int(tup[0])
+    value2 = int(tup[1])
+    print "http://7cfcc050.ngrok.com/insert.php?name=8122514058&date="+datetime.datetime.strftime(datetime.datetime.now(), '%d%m')+"&rev="+str(value1)
+    urllib2.urlopen("http://7cfcc050.ngrok.com/insert.php?name=8122514058&date="+datetime.datetime.strftime(datetime.datetime.now(), '%d%m')+"&rev="+str(value1))
+
+
 
 while(True):
     # infinite loop guys! :p
