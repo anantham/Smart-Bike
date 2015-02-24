@@ -97,6 +97,11 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         startActivity(intent);
     }
 
+    public void showWeather(View view) {
+        Intent intent = new Intent(this, BargraphDisplay.class);
+        startActivity(intent);
+    }
+
     // classes nested inside the main class Home.java
 
     // This is the class used to start threads which keeps checking with the server to see if any accident has happened

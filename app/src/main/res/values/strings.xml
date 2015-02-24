@@ -27,5 +27,6 @@
     <string name="title_activity_show_profile">Profile</string>
     <string name="showprofile">Show Profile</string>
     <string name="title_activity_fuel_details">Fuel Console</string>
+    <string name="title_activity_bargraph_display">Bar Graph</string>
 
 </resources>

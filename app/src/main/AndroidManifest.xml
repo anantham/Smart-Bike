@@ -95,6 +95,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sangam.aditya.smarthelmet.Home" />
         </activity>
+        <activity
+            android:name=".BargraphDisplay"
+            android:label="@string/title_activity_bargraph_display"
+            android:parentActivityName=".Home" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sangam.aditya.smarthelmet.Home" />
+        </activity>
+        <activity android:name="org.achartengine.GraphicalActivity" />
     </application>
 
 </manifest>
