@@ -24,6 +24,7 @@ public class EditEmergencyNumber extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_emergency_number);
 
+
         //If the numbers have already been saved restore them
         restore_to_edit_text();
     }
@@ -38,6 +39,13 @@ public class EditEmergencyNumber extends ActionBarActivity {
         // get the numbers from memory
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.EMERGENCY_NUMBER_MASTER, MODE_PRIVATE);
 
+
+        if(!Long.toString((pref.getLong(Home.EMERGENCY_NUMBER1,65L))).equals("65")){
+            no2.setKeyListener(null);
+            no1.setKeyListener(null);
+            no3.setKeyListener(null);
+
+        }
         // set these numbers to the edit text
         no1.setText(Long.toString(pref.getLong(Home.EMERGENCY_NUMBER1, 0)));
         no2.setText(Long.toString(pref.getLong(Home.EMERGENCY_NUMBER2, 0)));
@@ -57,8 +65,10 @@ public class EditEmergencyNumber extends ActionBarActivity {
         EditText no2 = (EditText)findViewById(R.id.editText2);
         EditText no3 = (EditText)findViewById(R.id.editText3);
 
+
         // Validate the entered numbers
         if(!valid_numbers(no1.getText().toString(),no2.getText().toString(),no3.getText().toString())){
+
             return;
         }
 
@@ -76,16 +86,16 @@ public class EditEmergencyNumber extends ActionBarActivity {
     }
 
     private boolean valid_numbers(String no1,String no2,String no3) {
-        //check if the entered numbers are valid
-        if(no1.length()!=10 && !Pattern.matches("[a-zA-Z]+", no1)){
+        if(no1.length()!=11 && !Pattern.matches("[a-zA-Z]+", no1)){
+            //check if the entered numbers are valid
             Toast.makeText(this, "Enter a 10 digit phone number (first entry)", Toast.LENGTH_SHORT).show();
             return false;
         }
-        else if(no2.length()!=10 && !Pattern.matches("[a-zA-Z]+", no2)){
+        else if(no2.length()!=11 && !Pattern.matches("[a-zA-Z]+", no2)){
             Toast.makeText(this, "Enter a 10 digit phone number (second entry)", Toast.LENGTH_SHORT).show();
             return false;
         }
-        else if(no3.length()!=10 && !Pattern.matches("[a-zA-Z]+", no3)){
+        else if(no3.length()!=11 && !Pattern.matches("[a-zA-Z]+", no3)){
             Toast.makeText(this, "Enter a 10 digit phone number (third entry)", Toast.LENGTH_SHORT).show();
             return false;
         }
