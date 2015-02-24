@@ -13,18 +13,18 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/textView8"
         android:layout_alignTop="@+id/textViewname"
-        android:layout_toLeftOf="@+id/textView11"
-        android:layout_toStartOf="@+id/textView11" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"        android:text="Small Text"
         android:id="@+id/textViewname"
-        android:layout_marginBottom="59dp"
+        android:layout_marginBottom="34dp"
         android:layout_above="@+id/textViewphonenumber"
-        android:layout_toRightOf="@+id/textView11"
-        android:layout_toEndOf="@+id/textView11" />
+        android:layout_alignLeft="@+id/textViewphonenumber"
+        android:layout_alignStart="@+id/textViewphonenumber" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -32,9 +32,10 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="PHONE NUMBER :"
         android:id="@+id/textView10"
-        android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/textView12"
-        android:layout_alignStart="@+id/textView12" />
+        android:layout_marginTop="108dp"
+        android:layout_below="@+id/textView11"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -42,9 +43,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Medium Text"
         android:id="@+id/textViewphonenumber"
-        android:layout_toRightOf="@+id/textView11"
-        android:layout_toEndOf="@+id/textView11"
-        android:layout_alignTop="@+id/textView10" />
+        android:layout_alignTop="@+id/textView10"
+        android:layout_alignLeft="@+id/textViewbloodgroup"
+        android:layout_alignStart="@+id/textViewbloodgroup" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -64,8 +65,10 @@
         android:text="Medium Text"
         android:id="@+id/textViewbloodgroup"
         android:layout_alignTop="@+id/textView12"
-        android:layout_alignLeft="@+id/textViewphonenumber"
-        android:layout_alignStart="@+id/textViewphonenumber" />
+        android:layout_toRightOf="@+id/textView12"
+        android:layout_toEndOf="@+id/textView12"
+        android:layout_marginLeft="27dp"
+        android:layout_marginStart="27dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,12 +76,10 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="BIKE MODEL :"
         android:id="@+id/textView9"
-        android:layout_marginLeft="58dp"
-        android:layout_marginStart="58dp"
-        android:layout_below="@+id/textViewbloodgroup"
+        android:layout_marginTop="42dp"
+        android:layout_below="@+id/textView12"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="58dp" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -87,8 +88,8 @@
         android:text="Medium Text"
         android:id="@+id/textViewbikemodel"
         android:layout_alignTop="@+id/textView9"
-        android:layout_toRightOf="@+id/textView11"
-        android:layout_toEndOf="@+id/textView11" />
+        android:layout_alignLeft="@+id/textViewbloodgroup"
+        android:layout_alignStart="@+id/textViewbloodgroup" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -96,7 +97,10 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="User Profile"
         android:id="@+id/textView11"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="45dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_toRightOf="@+id/textView8"
+        android:layout_toEndOf="@+id/textView8"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp" />
 </RelativeLayout>

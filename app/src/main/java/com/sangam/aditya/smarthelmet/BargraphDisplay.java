@@ -37,7 +37,6 @@ public class BargraphDisplay extends ActionBarActivity {
         setContentView(R.layout.activity_bargraph_display);
         progress = new ProgressDialog(this);
         progress.setMessage(" Drawing Graph ");
-        progress.setCancelable(false);
         progress.show();
         new TestAsync().execute();
     }

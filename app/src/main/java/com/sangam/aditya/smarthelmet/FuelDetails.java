@@ -3,7 +3,6 @@ package com.sangam.aditya.smarthelmet;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +21,24 @@ import java.util.Set;
 
 public class FuelDetails extends ActionBarActivity {
 
+    Set<String> fuelData = new HashSet<>(Arrays.asList(""));
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fuel_details);
+
+        restoreFuelData();
+    }
+
+    // This fetches the data stored in the USER_FUEL shared preference and populates the ListView
+    private void restoreFuelData() {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.USER_FUEL, MODE_PRIVATE);
+        fuelData = pref.getStringSet(Home.USER_FUEL, fuelData);
+        List<String> fuelList = new ArrayList<>(fuelData);
+        ListView list = (ListView)findViewById(R.id.listViewfueldata);
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, fuelList);
+        list.setAdapter(listAdapter);
     }
 
 
@@ -54,12 +67,11 @@ public class FuelDetails extends ActionBarActivity {
     public void saveFuelData(View view) {
 
         String fueladded = ((EditText) findViewById(R.id.editTextfueladded)).getText().toString();
+
         if (fueladded.isEmpty()) {
             Toast.makeText(this, "Enter fuel amount in litre's", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        Set<String> fuelData = new HashSet<>(Arrays.asList("No Values"));
 
         // get the handle on the shared preferences we are using to store the numbers
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.USER_FUEL, MODE_PRIVATE);
@@ -68,18 +80,12 @@ public class FuelDetails extends ActionBarActivity {
         SharedPreferences.Editor editor = pref.edit();
 
         Calendar c = Calendar.getInstance();
-        int date = c.get(Calendar.DATE);
-        Log.i("debug", Integer.toString(date));
-        Log.i("debug", fuelData.toString());
 
-        fuelData.add(fueladded);
+        fuelData.add("     " + fueladded +" lites on Date : "+ Integer.toString(c.get(Calendar.DATE)) +"/"+ Integer.toString(c.get(Calendar.MONTH)+1) +"/"+ Integer.toString(c.get(Calendar.YEAR)));
 
         editor.putStringSet(Home.USER_FUEL, fuelData);
         editor.apply();
 
-        List<String> fuelList = new ArrayList<>(fuelData);
-        ListView list = (ListView)findViewById(R.id.listViewfueldata);
-        ArrayAdapter<String> listAdapter=new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, (String[]) fuelList.toArray());
-        list.setAdapter(listAdapter);
+        restoreFuelData();
     }
 }
