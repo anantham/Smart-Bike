@@ -115,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Unknown"
+        android:text="Calculating..."
         android:id="@+id/textViewpetrolleft"
         android:layout_marginTop="33dp"
         android:layout_below="@+id/textView5"

@@ -53,6 +53,8 @@ public class SetDestination extends ActionBarActivity {
         }
     }
 
+
+
     // IT does what its name says, pretty clear I hope.
     private void showGPSDisabledAlertToUser(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -106,7 +108,6 @@ public class SetDestination extends ActionBarActivity {
         // Show it
         alert.show();
     }
-
 
 
         //a function to check if Internet is available

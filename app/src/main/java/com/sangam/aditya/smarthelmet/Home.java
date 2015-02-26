@@ -1,5 +1,8 @@
 package com.sangam.aditya.smarthelmet;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +11,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -40,7 +46,7 @@ import java.net.URLConnection;
 import java.util.Locale;
 
 
-public class Home extends ActionBarActivity implements TextToSpeech.OnInitListener {
+public class Home extends ActionBarActivity implements TextToSpeech.OnInitListener, LocationListener {
     //CONSTANTS
     public static final String USER_SERVER_URL          = "http://742ece35.ngrok.com/db.php?name=8122514058&date=2302";
 
@@ -93,6 +99,9 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     private IntentFilter mIntentFilter;
 
     public void showProfile(View view) {
+        if(!isNetworkConnected()){
+            Toast.makeText(this,"No internet connection",Toast.LENGTH_LONG);
+        }
         Intent intent = new Intent(this, ShowProfile.class);
         startActivity(intent);
     }
@@ -184,14 +193,298 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             }
         }
     }
+    String lat1, lon1;
+
+
+    String serverResponse=null;
+    String[] datearray = new String[10];
+
+
+    public class acc extends AsyncTask<Void, Integer, String> {
+        String servertemp;
+        protected String doInBackground(Void...arg0) {
+            try {
+                URL url = new URL("http://742ece35.ngrok.com/a.txt");
+                Log.i("the empId", "");
+
+                URLConnection connection = url.openConnection();
+                InputStream inputStream = connection.getInputStream();
+
+                String encoding = connection.getContentEncoding();
+                if (encoding == null) encoding = "UTF-8";
+
+                ByteArrayOutputStream outputByteByByte = new ByteArrayOutputStream();
+                byte[] buffer = new byte[8192];
+                int len;
+                try {
+                    // Read the inputStream using the buffer
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        // write what you get to the outputByteByByte variable
+                        outputByteByByte.write(buffer, 0, len);
+                    }
+
+                    servertemp = new String(outputByteByByte.toByteArray(), encoding);
+
+                } catch (IOException e) {
+                    Log.i("IOException", "buffer to outputByteByByte");
+                    e.printStackTrace();
+                }
+
+            } catch (MalformedURLException e) {
+                Log.i("MalformedURLException", "URL not in proper format");
+                e.printStackTrace();
+            } catch (IOException e) {
+                Log.i("IOException", "connection with server");
+                e.printStackTrace();
+            }
+            Log.i("gt",servertemp);
+            return "";
+        }
+
+        protected void onProgressUpdate(Integer...a){
+            // Log.d("You are in progress update ... " + a[0]);
+        }
+
+        protected void onPostExecute(String result) {
+            Log.d("", "onpostexecte");
+            if(servertemp.matches("1"))
+            {
+                Log.i("gt","overspeeding");
+
+                SmsManager smsManager =     SmsManager.getDefault();
+                smsManager.sendTextMessage("8754302349", null, "Overspeeding", null, null);
+
+                new reset().execute();
+            }
+
+            if(servertemp.matches("2"))
+            {
+                Log.i("gt","accident");
+
+                SmsManager smsManager =     SmsManager.getDefault();
+                smsManager.sendTextMessage("8754302349", null, "Accident", null, null);
+
+                new reset().execute();
+
+            }
+
+            new acc().execute();
+        }
+    }
 
 
 
+    public class reset extends AsyncTask<Void, Integer, String> {
+
+        protected String doInBackground(Void...arg0) {
+            try {
+                URL url = new URL("http://742ece35.ngrok.com/bike.php?some=0");
+                Log.i("the empId", "");
+
+                URLConnection connection = url.openConnection();
+                InputStream inputStream = connection.getInputStream();
+
+                String encoding = connection.getContentEncoding();
+                if (encoding == null) encoding = "UTF-8";
+
+                ByteArrayOutputStream outputByteByByte = new ByteArrayOutputStream();
+                byte[] buffer = new byte[8192];
+                int len;
+                try {
+                    // Read the inputStream using the buffer
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        // write what you get to the outputByteByByte variable
+                        outputByteByByte.write(buffer, 0, len);
+                    }
+
+                    serverResponse = new String(outputByteByByte.toByteArray(), encoding);
+
+                } catch (IOException e) {
+                    Log.i("IOException", "buffer to outputByteByByte");
+                    e.printStackTrace();
+                }
+
+            } catch (MalformedURLException e) {
+                Log.i("MalformedURLException", "URL not in proper format");
+                e.printStackTrace();
+            } catch (IOException e) {
+                Log.i("IOException", "connection with server");
+                e.printStackTrace();
+            }
+
+            return "";
+        }
+
+        protected void onProgressUpdate(Integer...a){
+        }
+
+        protected void onPostExecute(String result) {
+        }
+    }
+
+    public class getRevolutions extends AsyncTask<Void, Integer, String> {
+
+        protected String doInBackground(Void...arg0) {
+            try {
+                URL url = new URL(Home.USER_SERVER_URL);
+                Log.i("the empId", "");
+
+                URLConnection connection = url.openConnection();
+                InputStream inputStream = connection.getInputStream();
+
+                String encoding = connection.getContentEncoding();
+                if (encoding == null) encoding = "UTF-8";
+
+                ByteArrayOutputStream outputByteByByte = new ByteArrayOutputStream();
+                byte[] buffer = new byte[8192];
+                int len;
+                try {
+                    // Read the inputStream using the buffer
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        // write what you get to the outputByteByByte variable
+                        outputByteByByte.write(buffer, 0, len);
+                    }
+
+                    serverResponse = new String(outputByteByByte.toByteArray(), encoding);
+
+                } catch (IOException e) {
+                    Log.i("IOException", "buffer to outputByteByByte");
+                    e.printStackTrace();
+                }
+
+            } catch (MalformedURLException e) {
+                Log.i("MalformedURLException", "URL not in proper format");
+                e.printStackTrace();
+            } catch (IOException e) {
+                Log.i("IOException", "connection with server");
+                e.printStackTrace();
+            }
+            datearray=serverResponse.split("#");
+
+            return serverResponse;
+        }
+
+        protected void onProgressUpdate(Integer...a){
+            // Log.d("You are in progress update ... " + a[0]);
+        }
+
+        protected void onPostExecute(String result) {
+            Log.d("", "onpostexecte");
+            double revolutions = 0;
+            for(int i = 0; i<10 ; i++)
+            {
+                revolutions = revolutions + Integer.parseInt(datearray[i]);
+                Log.i("debug",datearray[i]);
+            }
+
+
+            // Here I will hardcode the values of Yamaha Crux, a popular Indian Bike
+            // it's MILEAGE = 91 kilometer per litre fuel economy under standard test conditions.
+            // -- Do note that real world riding conditions are many times different from the standard test conditions.
+            // 60 IS USERS RATED MILEAGE
+            // RADIUS of wheel taking total approximation
+            // Now revolutions will be total revolutions travelled till now =>
+            double Radius = 30 * 0.00001; // In KiloMeters
+            double distance = (2*3.14*Radius) * revolutions;
+            Log.i("debug - revolutions",Double.toString(revolutions));
+
+            // Now lets fetch total petrol filled till now
+            SharedPreferences pref   = getApplicationContext().getSharedPreferences(Home.USER_FUEL, MODE_PRIVATE);
+            String totalFuelFilled = pref.getString(Home.USER_FUEL_FILLED,"0");
+            Log.i("debug - total filled", totalFuelFilled);
+
+            //double totalDistanceTravelled = Double.parseDouble(pref.getString(Home.USER_TOTAL_DISTANCE,"0"))+distance;
+            double totalFuelConsumed = distance / 60;
+
+             fuelRemaining = Double.parseDouble(totalFuelFilled) - totalFuelConsumed ;
+            notification();
+        }
+    }
+
+    Double fuelRemaining;
+    public void notification()
+    {
+        if(!(fuelRemaining.intValue()<30))
+            return;
+        Log.i("gt","not");
+        int icon = R.drawable.ic_launcher;
+        long when = System.currentTimeMillis();
+        NotificationManager notificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification notification = new Notification(icon, "Petrol is low", when);
+
+        String title = this.getString(R.string.app_name);
+
+        Intent notificationIntent = new Intent(this, Home.class);
+        // set intent so it does not start a new activity
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent intent =
+                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notification.setLatestEventInfo(this, title, "Petrol is low", intent);
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        // Play default notification sound
+        notification.defaults |= Notification.DEFAULT_SOUND;
+
+        // Vibrate if vibrate is enabled
+        notification.defaults |= Notification.DEFAULT_VIBRATE;
+        notificationManager.notify(0, notification);
+    }
+
+
+
+    @Override
+    public void onLocationChanged(Location location2)
+    {
+        location = location2;
+        lat1 = Double.toString(location.getLatitude());
+        lon1 = Double.toString(location.getLatitude());
+        //tv.setText("You just moved");
+        Log.i("gt", lat1+lon1);
+    }
+
+    @Override
+    public void onProviderDisabled(String arg0) {
+        // TODO Auto-generated method stub
+
+      //  tv.setText("You just moved");
+    }
+
+    @Override
+    public void onProviderEnabled(String arg0) {
+        // TODO Auto-generated method stub
+        LocationManager lam = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        Location location = lam.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+//        Log.i("gt", location.getLongitude()+location.getLatitude());
+    //        tv.setText("You just moved");
+    }
+
+    @Override
+    public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+        // TODO Auto-generated method stub
+
+     //   tv.setText("You just moved");
+    }
+
+
+    Location location;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        new getRevolutions().execute();
+        new acc().execute();
+        //notification();
+
+        if(location!=null) {
+            String lat1 = Double.toString(location.getLatitude());
+            String lon1 = Double.toString(location.getLongitude());
+            String towrite = "geo:" + lat1 + "," + lon1;
+            Log.i("gt", towrite);
+        }
         AudioManager am;
         am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
         //am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
