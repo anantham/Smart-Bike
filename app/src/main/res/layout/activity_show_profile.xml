@@ -97,10 +97,28 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="User Profile"
         android:id="@+id/textView11"
-        android:layout_marginTop="45dp"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView8"
-        android:layout_toEndOf="@+id/textView8"
-        android:layout_marginLeft="24dp"
-        android:layout_marginStart="24dp" />
+        android:layout_toRightOf="@+id/textView9"
+        android:layout_toEndOf="@+id/textView9" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="ESTIMATED PETROL REMAINING"
+        android:id="@+id/textView5"
+        android:layout_marginTop="39dp"
+        android:layout_below="@+id/textView9"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Unknown"
+        android:id="@+id/textViewpetrolleft"
+        android:layout_marginTop="33dp"
+        android:layout_below="@+id/textView5"
+        android:layout_toRightOf="@+id/textView12"
+        android:layout_toEndOf="@+id/textView12" />
 </RelativeLayout>

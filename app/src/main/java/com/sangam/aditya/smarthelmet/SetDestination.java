@@ -29,14 +29,14 @@ public class SetDestination extends ActionBarActivity {
     Long latitude;
 
 
-
+    Bundle savgt= new Bundle();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_destination);
-
+        savgt = savedInstanceState;
 
         //sms part
 
@@ -189,6 +189,14 @@ public class SetDestination extends ActionBarActivity {
                 "com.google.android.maps.MapsActivity");
         startActivity(intent);
     }
+
+
+    @Override
+public void onResume()
+    {
+        super.onResume();
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

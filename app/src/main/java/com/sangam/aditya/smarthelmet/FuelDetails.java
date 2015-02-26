@@ -3,6 +3,7 @@ package com.sangam.aditya.smarthelmet;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,7 +77,7 @@ public class FuelDetails extends ActionBarActivity {
         // get the handle on the shared preferences we are using to store the numbers
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.USER_FUEL, MODE_PRIVATE);
         fuelData = pref.getStringSet(Home.USER_FUEL, fuelData);
-
+        String totalFuelFilled= pref.getString(Home.USER_FUEL_FILLED,"0");
         SharedPreferences.Editor editor = pref.edit();
 
         Calendar c = Calendar.getInstance();
@@ -84,8 +85,12 @@ public class FuelDetails extends ActionBarActivity {
         fuelData.add("     " + fueladded +" lites on Date : "+ Integer.toString(c.get(Calendar.DATE)) +"/"+ Integer.toString(c.get(Calendar.MONTH)+1) +"/"+ Integer.toString(c.get(Calendar.YEAR)));
 
         editor.putStringSet(Home.USER_FUEL, fuelData);
+        totalFuelFilled = Double.toString(Double.parseDouble(totalFuelFilled)+Double.parseDouble(fueladded));
+        editor.putString(Home.USER_FUEL_FILLED,totalFuelFilled);
+
         editor.apply();
 
+        Log.i("debug",totalFuelFilled);
         restoreFuelData();
     }
 }

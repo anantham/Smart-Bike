@@ -59,13 +59,11 @@ public class BargraphDisplay extends ActionBarActivity {
 
 
 
-    class TestAsync extends AsyncTask<Void, Integer, String>{
+    public class TestAsync extends AsyncTask<Void, Integer, String>{
 
         protected String doInBackground(Void...arg0) {
-                for(int i=0;i<8;i++) {
-                    try {
-                        URL url = new URL("http://7cfcc050.ngrok.com/db.php?name=8122514058&date="+datee[i]);
-                        Log.i("the empId", "");
+                try {
+                        URL url = new URL(Home.USER_SERVER_URL);
 
                         URLConnection connection = url.openConnection();
                         InputStream inputStream = connection.getInputStream();
@@ -97,9 +95,9 @@ public class BargraphDisplay extends ActionBarActivity {
                         Log.i("IOException", "connection with server");
                         e.printStackTrace();
                     }
-                    datearray[i]=serverResponse;
-                }
-                return null;
+                    datearray=serverResponse.split("#");
+
+                return serverResponse;
         }
 
         protected void onProgressUpdate(Integer...a){

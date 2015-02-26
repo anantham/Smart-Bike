@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -26,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,6 +42,7 @@ import java.util.Locale;
 
 public class Home extends ActionBarActivity implements TextToSpeech.OnInitListener {
     //CONSTANTS
+    public static final String USER_SERVER_URL          = "http://742ece35.ngrok.com/db.php?name=8122514058&date=2302";
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
     public static final String USER                     = "com.sangam.smarthelmet_UserData";
@@ -50,11 +54,12 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     public static final String USER_NUMBER_MASTER       = "com.sangam.smarthelmet_usernumberkey";
     public static final String USER_NUMBER_NAME         = "com.sangam.smarthelmet_user_name";
 
-    public static final String USER_BLOOD_GROUP       = "com.sangam.smarthelmet_userbloodgroup";
-    public static final String USER_BIKE_MODEL         = "com.sangam.smarthelmet_userbikemodel";
+    public static final String USER_BLOOD_GROUP         = "com.sangam.smarthelmet_userbloodgroup";
+    public static final String USER_BIKE_MODEL          = "com.sangam.smarthelmet_userbikemodel";
 
-    public static final String USER_REGISTRATION         = "com.sangam.smarthelmet_registrationstatus";
-
+    public static final String USER_REGISTRATION        = "com.sangam.smarthelmet_registrationstatus";
+    public static final String USER_FUEL_FILLED         = "com.sangam.smarthelmet_totalfuelfilled";
+    public static final String USER_TOTAL_DISTANCE      = "com.sangam.smarthelmet_totaldistancetravelled";
 
     // this is the default number which will be stored as emergency numbers
     private static final long DEFAULT_EMERGENCY_NUMBER = 0;
@@ -97,7 +102,23 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         startActivity(intent);
     }
 
+    //a function to check if Internet is available
+    public boolean isNetworkConnected(){
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni == null) {
+            // There are no active networks.
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public void showWeather(View view) {
+        if(!isNetworkConnected()){
+            Toast.makeText(this,"No internet connection",Toast.LENGTH_LONG).show();
+            return;
+        }
         Intent intent = new Intent(this, BargraphDisplay.class);
         startActivity(intent);
     }
