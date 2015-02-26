@@ -10,7 +10,7 @@ if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
     
 last_second = -1
-url = "http://192.168.43.132/"
+url = "http://192.168.1.100/"
 time_gap = 5
 phone_no = "+919754302349"
 myphone = "9566762034"
@@ -20,18 +20,12 @@ def getData():
     try:
         page = urllib2.urlopen(url)
     except urllib2.URLError:
-        print "error!"
+        print "error! server down "
         return "0"
     soup = BeautifulSoup(page)
     value = soup.text[3:7] 
     #pin2 = soup.text[soup.text.rfind("=")+1:soup.text.rfind("=")+4]
     print "value has been fetched "+value
-    if(int(value)>=3000):
-        print "ACCIDENT!!!!!!!!!!!!!!!"
-        urllib2.urlopen("localhost/bike.php?some=2")
-    if(int(value)>5 and int(value)<3000):
-        print "Overspeed..."
-        urllib2.urlopen("localhost/bike.php?some=1")
     return value
 
 def send_sms_try(phone,msg):
@@ -51,7 +45,7 @@ def send_sms(phone,msg):
     try:
         response = unirest.get("https://site2sms.p.mashape.com/index.php?msg=hey+dude&phone=9566762034&pwd=adityaprasad&uid=9566762034",headers={"X-Mashape-Key": "x6g7JbSWSwmshuXtWsWK9CGdxGlLp1cHaSKjsnLbLpBOW0Y9in","Accept": "application/json"})
     except urllib2.URLError:
-        print "error"
+        print "error sms server down"
     print "done"
     
 def storeData(value):
@@ -73,7 +67,7 @@ def storeData(value):
        # Commit your changes in the database
        db.commit()
     except:
-        print "ERROR!!"
+        print "ERROR database down!!"
         # Rollback in case there is any error
         db.rollback()
         
@@ -92,10 +86,18 @@ while(True):
         #print "time in seconds is "+str(current_seconds)
         data = getData()
         print "we FETCHED THE VALUE AS "+data
+ 
+
         if(data == last_value):
             print "same value, so skipping "
             print "last stored value was "+last_value
         else:
+            if(int(data)-int(last_value)>=3000):
+                print "ACCIDENT!!!!!!!!!!!!!!!"
+                urllib2.urlopen("http://localhost/bike.php?some=2")
+            if(int(data)-int(last_value)>3 and int(data)-int(last_value)<3000):
+                print "Overspeed..."
+                urllib2.urlopen("http://localhost/bike.php?some=1")
             storeData(str(int(data)-int(last_value)))
             print "stored value "+str(int(data)-int(last_value))+" to database"
             last_value = data

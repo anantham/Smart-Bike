@@ -385,7 +385,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             // RADIUS of wheel taking total approximation
             // Now revolutions will be total revolutions travelled till now =>
             double Radius = 30 * 0.00001; // In KiloMeters
-            double distance = (2*3.14*Radius) * revolutions;
+            distance = (2*3.14*Radius) * revolutions;
             Log.i("debug - revolutions",Double.toString(revolutions));
 
             // Now lets fetch total petrol filled till now
@@ -400,7 +400,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             notification();
         }
     }
-
+    Double distance;
     Double fuelRemaining;
     public void notification()
     {
@@ -430,6 +430,38 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         // Vibrate if vibrate is enabled
         notification.defaults |= Notification.DEFAULT_VIBRATE;
         notificationManager.notify(0, notification);
+    }
+
+    public void service_notification()
+    {
+        if(distance.intValue()>20)
+            return;
+        {
+            Log.i("gt", distance.toString());
+            int icon = R.drawable.ic_launcher;
+            long when = System.currentTimeMillis();
+            NotificationManager notificationManager = (NotificationManager)
+                    this.getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = new Notification(icon, "Service your bike", when);
+
+            String title = this.getString(R.string.app_name);
+
+            Intent notificationIntent = new Intent(this, Home.class);
+            // set intent so it does not start a new activity
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent intent =
+                    PendingIntent.getActivity(this, 0, notificationIntent, 0);
+            notification.setLatestEventInfo(this, title, "Petrol is low", intent);
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+            // Play default notification sound
+            notification.defaults |= Notification.DEFAULT_SOUND;
+
+            // Vibrate if vibrate is enabled
+            notification.defaults |= Notification.DEFAULT_VIBRATE;
+            notificationManager.notify(0, notification);
+        }
     }
 
 
