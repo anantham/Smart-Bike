@@ -154,8 +154,10 @@ public class SetDestination extends ActionBarActivity {
             return;
         }
         else if (source == null || source.getText().toString().matches("")){
-            Toast.makeText(this, "Please enter source address and try again", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(this, "Using current location as Source Location", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                    Uri.parse("google.navigation:q="+destination.getText().toString()));
+            startActivity(intent);
         }
 
         // Initialize a Location manager variable

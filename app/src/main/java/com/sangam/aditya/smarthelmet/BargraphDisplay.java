@@ -119,11 +119,6 @@ public class BargraphDisplay extends ActionBarActivity{
             int[] income = {2000, 0, 0, 0, 0, 0, 0, 0};
             for (int i = 0; i < 8; i++) {
                 income[i] = Integer.valueOf(datearray[i]);
-                Log.i("debug", datearray[i]);
-                if(Integer.valueOf(datearray[i])>=1000){
-                    Log.i("debug","first STEP!!!");
-                    accident_alert();
-                }
             }
             //    int[] expense = {2200, 2700, 2900, 2800, 2600, 3000, 3300, 3400 };
 
