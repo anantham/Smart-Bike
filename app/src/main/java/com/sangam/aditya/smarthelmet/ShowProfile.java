@@ -120,6 +120,11 @@ public class ShowProfile extends ActionBarActivity {
             double totalFuelConsumed = distance / 60;
 
             double fuelRemaining = Double.parseDouble(totalFuelFilled) - totalFuelConsumed ;
+
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString(Home.USER_FUEL_REMAINING,Double.toString(fuelRemaining));
+            editor.apply();
+
             petrolremaining.setText(Double.toString(fuelRemaining));
         }
     }

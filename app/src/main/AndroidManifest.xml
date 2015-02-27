@@ -56,6 +56,7 @@
         <activity
             android:name=".SetDestination"
             android:label="@string/title_activity_set_destination"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Home" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -83,6 +84,7 @@
         <activity
             android:name=".ShowProfile"
             android:label="@string/title_activity_show_profile"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Home" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

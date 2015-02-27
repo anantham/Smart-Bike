@@ -77,7 +77,7 @@ public class FuelDetails extends ActionBarActivity {
         // get the handle on the shared preferences we are using to store the numbers
         SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.USER_FUEL, MODE_PRIVATE);
         fuelData = pref.getStringSet(Home.USER_FUEL, fuelData);
-        String totalFuelFilled= pref.getString(Home.USER_FUEL_FILLED,"0");
+        String totalFuelFilled = pref.getString(Home.USER_FUEL_FILLED,"0");
         SharedPreferences.Editor editor = pref.edit();
 
         Calendar c = Calendar.getInstance();

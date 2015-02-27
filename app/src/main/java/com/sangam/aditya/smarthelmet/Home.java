@@ -62,7 +62,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     public static final String USER_REGISTRATION        = "com.sangam.smarthelmet_registrationstatus";
     public static final String USER_FUEL_FILLED         = "com.sangam.smarthelmet_totalfuelfilled";
-    public static final String USER_TOTAL_DISTANCE      = "com.sangam.smarthelmet_totaldistancetravelled";
+    public static final String USER_FUEL_REMAINING      = "com.sangam.smarthelmet_totalremaining";
 
     // this is the default number which will be stored as emergency numbers
     private static final long DEFAULT_EMERGENCY_NUMBER = 0;
@@ -93,11 +93,10 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     // Variables used for SMS notification broadcast reciever
     private SMSreceiver mSMSreceiver;
-    private IntentFilter mIntentFilter;
 
     public void showProfile(View view) {
         if(!isNetworkConnected()){
-            Toast.makeText(this,"No internet connection",Toast.LENGTH_LONG);
+            Toast.makeText(this,"No internet connection",Toast.LENGTH_LONG).show();
         }
         Intent intent = new Intent(this, ShowProfile.class);
         startActivity(intent);
@@ -112,12 +111,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     public boolean isNetworkConnected(){
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
-        if (ni == null) {
-            // There are no active networks.
-            return false;
-        } else {
-            return true;
-        }
+        return ni != null;
     }
 
     public void showWeather(View view) {
@@ -519,7 +513,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         //am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
 
         mSMSreceiver = new SMSreceiver();
-        mIntentFilter = new IntentFilter();
+        IntentFilter mIntentFilter = new IntentFilter();
         mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
         registerReceiver(mSMSreceiver, mIntentFilter);
 
@@ -617,12 +611,12 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                         am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                         call_came=1;
                         String caller = getContactName(incomingNumber);
-                        if(caller == ""){
+                        if(caller.equals("")){
                             String[] phonenumberdigits = incomingNumber.split("(?!^)");
-                            Log.i("DEBUG",phonenumberdigits.toString());
-                            for(int i=0 ; i<phonenumberdigits.length ; i++){
-                                caller = caller +phonenumberdigits[i]+" ";
-                                Log.i("DEBUG",phonenumberdigits[i]);
+
+                            for (String phonenumberdigit : phonenumberdigits) {
+                                caller = caller + phonenumberdigit + " ";
+                                Log.i("DEBUG", phonenumberdigit);
                             }
                         }
 
@@ -714,20 +708,19 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             {
                 Object[] smsextras = (Object[]) extras.get( "pdus" );
 
-                for ( int i = 0; i < smsextras.length; i++ )
-                {
-                    SmsMessage smsmsg = SmsMessage.createFromPdu((byte[]) smsextras[i]);
+                for (Object smsextra : smsextras) {
+                    SmsMessage smsmsg = SmsMessage.createFromPdu((byte[]) smsextra);
 
-                    String strMsgBody = smsmsg.getMessageBody().toString();
+                    String strMsgBody = smsmsg.getMessageBody();
                     String strMsgSrc = smsmsg.getOriginatingAddress();
                     String sender = getContactName(strMsgSrc);
-                    Log.i("DEBUG",sender);
-                    if(sender == "") {
-                        String[] phonenumberdigits = strMsgSrc.split("(?!^)");
-                        Log.i("DEBUG", phonenumberdigits.toString());
-                        for (int j = 0; j < phonenumberdigits.length; j++) {
-                            sender = sender + phonenumberdigits[j] + " ";
-                            Log.i("DEBUG", phonenumberdigits[j]);
+                    Log.i("DEBUG", sender);
+                    if (sender.equals("")) {
+                        String[] phoneNumberDigits = strMsgSrc.split("(?!^)");
+
+                        for (String phonenumberdigit : phoneNumberDigits) {
+                            sender = sender + phonenumberdigit + " ";
+                            Log.i("DEBUG", phonenumberdigit);
                         }
                         strMessage += "You received a SMS from " + sender + " : " + strMsgBody;
                         say_this(strMessage);
