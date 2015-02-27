@@ -16,7 +16,7 @@ Members
 Overview
 --------
 
-This is the app which will work with the smart helmet being made to showcase in our college's technical
+This is the application which will work with the smart helmet being made to showcase in our college's technical
 festival [Sangam at Pragyan][1]. 
 
 
@@ -24,16 +24,27 @@ festival [Sangam at Pragyan][1].
 Features
 --------
 
-we hope to implement the following features :
+It implements the following features :
 
-* The app should connect to the smart helmet's speaker via bluetooth and give directions to a specified location.
+* The application connects to the smart helmet's speaker via BlueTooth automatically 
 
-* It should alert the "emergency" numbers when/if the helmet reports an accident has occured. 
+* It gives turn-by-turn directions to a specified location from a specified location.
 
-* It should alert the user with a incoming caller's contact name.
+* It alerts the emergency numbers when/if the helmet reports an accident has occurred. 
 
-* It should be able to be used for keeping track of fuel and the app should alert the user in case of impending shortage
+* It reads any received SMS out loud through the BlueTooth speaker, along with the sender's
+  contact name.
 
+* It alerts the user with a incoming caller's contact name.
+
+* It keeps track of fuel consumption and then alerts the user in case of impending shortage.
+
+* The python script is used to fetch revolutions every 5 seconds and checks for over-speeding, it notifies
+  the user through a notification
+
+* If accident occurs, SMS is send to specified number with location (lat and log)
+
+* The revolutions are fetched by the application and a graph 
 
 
 

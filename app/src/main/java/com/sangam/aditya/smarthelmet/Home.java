@@ -18,8 +18,6 @@ import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Contacts;
@@ -39,7 +37,6 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -589,6 +586,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         }
         catch (Exception e) {
             Log.i("Error-adi","getting contact name unsuccessful");
+            return phoneNumber;
         }
 
         uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
@@ -616,10 +614,21 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                         //TextView tv = (TextView)findViewById(R.id.textView6); used for DEBUGGING TODO delete this
                         //say_this("You are getting a call from " + getContactName(incomingNumber));
                         AudioManager am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-                        //am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                         call_came=1;
-                        say_this("You are getting a call from " + getContactName(incomingNumber));
+                        String caller = getContactName(incomingNumber);
+                        if(caller == ""){
+                            String[] phonenumberdigits = incomingNumber.split("(?!^)");
+                            Log.i("DEBUG",phonenumberdigits.toString());
+                            for(int i=0 ; i<phonenumberdigits.length ; i++){
+                                caller = caller +phonenumberdigits[i]+" ";
+                                Log.i("DEBUG",phonenumberdigits[i]);
+                            }
+                        }
 
+                        Log.i("DEBUG",caller);
+                        say_this("You are getting a call from " +caller );
+                        Log.i("CAll CAME","yo");
                         break;
 
                     case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -711,10 +720,19 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
                     String strMsgBody = smsmsg.getMessageBody().toString();
                     String strMsgSrc = smsmsg.getOriginatingAddress();
-
-                    strMessage += "You received a SMS from " + getContactName(strMsgSrc) + " : " + strMsgBody;
-                    say_this(strMessage);
-                    Log.i(TAG, strMessage);
+                    String sender = getContactName(strMsgSrc);
+                    Log.i("DEBUG",sender);
+                    if(sender == "") {
+                        String[] phonenumberdigits = strMsgSrc.split("(?!^)");
+                        Log.i("DEBUG", phonenumberdigits.toString());
+                        for (int j = 0; j < phonenumberdigits.length; j++) {
+                            sender = sender + phonenumberdigits[j] + " ";
+                            Log.i("DEBUG", phonenumberdigits[j]);
+                        }
+                        strMessage += "You received a SMS from " + sender + " : " + strMsgBody;
+                        say_this(strMessage);
+                        Log.i(TAG, strMessage);
+                    }
                 }
 
             }
@@ -729,6 +747,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         BluetoothAdapter.getDefaultAdapter().enable();
 
         // First start the HotSpot which will be used by the helmet to send data to server
+        /*
         Context context= v.getContext();
         WifiManager wifiManager=(WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         if(wifiManager.isWifiEnabled())
@@ -759,7 +778,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         } catch (Exception e) {
             Log.e(this.getClass().toString(), "", e);
         }
-
+        */
         // Now take user to the page where the user can set the source and desti
         Intent intent = new Intent(this, SetDestination.class);
         startActivity(intent);
