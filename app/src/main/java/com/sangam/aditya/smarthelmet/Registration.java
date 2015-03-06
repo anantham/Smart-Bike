@@ -7,7 +7,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 
@@ -24,6 +26,17 @@ public class Registration extends ActionBarActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         }
+
+        ((Switch)findViewById(R.id.switch1)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    buttonView.setText("Male");
+                }
+                else{
+                    buttonView.setText("Female");
+                }
+            }
+        });
     }
 
 
@@ -57,6 +70,7 @@ public class Registration extends ActionBarActivity {
         // Get the number which we need to store.
         EditText number = (EditText)findViewById(R.id.editTextnumber);
         EditText name = (EditText)findViewById(R.id.editTextname);
+        EditText medicalHistory = (EditText)findViewById(R.id.editTextmedicalhistory);
 
         if(name.getText().toString().isEmpty() || number.getText().toString().isEmpty()){
             Toast.makeText(this, "Enter your details!", Toast.LENGTH_SHORT).show();
@@ -68,11 +82,18 @@ public class Registration extends ActionBarActivity {
             return;
         }
 
+        if(medicalHistory.getText().toString().isEmpty()){
+            Toast.makeText(this,"Enter at least NIL as medical history",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Store these numbers into memory
         editor.putLong(Home.USER_NUMBER_MASTER, Long.valueOf(number.getText().toString()));
 
         // Store the name into memory
         editor.putString(Home.USER_NUMBER_NAME, name.getText().toString());
+        editor.putString(Home.USER_GENDER,((Switch)findViewById(R.id.switch1)).getText().toString());
+        editor.putString(Home.USER_MEDICAL_HISTORY, medicalHistory.getText().toString());
 
         // Save the changes in SharedPreferences ie commit changes
         editor.apply();

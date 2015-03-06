@@ -28,5 +28,6 @@
     <string name="showprofile">Show Profile</string>
     <string name="title_activity_fuel_details">Fuel Console</string>
     <string name="title_activity_bargraph_display">Bar Graph</string>
+    <string name="title_activity_details">Bike Details</string>
 
 </resources>

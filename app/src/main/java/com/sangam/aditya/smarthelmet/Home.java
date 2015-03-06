@@ -20,6 +20,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Contacts;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
@@ -32,7 +33,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,7 +52,8 @@ import java.util.Locale;
 
 public class Home extends ActionBarActivity implements TextToSpeech.OnInitListener, LocationListener {
     //CONSTANTS
-    public static final String USER_SERVER_URL          = "http://742ece35.ngrok.com/db.php?name=8122514058&date=2302";
+    public static final String USER_SERVER_URL          = "http://7274cc3c.ngrok.com/db.php?name=8122514058&date=2302";
+    public static final String BASE_SERVER_URL          = "http://7274cc3c.ngrok.com/";
 
     // this is the String used to identify and accesses the shared preferences file used to store the numbers.
     public static final String USER                     = "com.sangam.smarthelmet_UserData";
@@ -64,8 +72,16 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     public static final String USER_FUEL_FILLED         = "com.sangam.smarthelmet_totalfuelfilled";
     public static final String USER_FUEL_REMAINING      = "com.sangam.smarthelmet_totalremaining";
 
+    public static final String USER_GENDER              = "com.sangam.smarthelmet_gender";
+    public static final String USER_MEDICAL_HISTORY     = "com.sangam.smarthelmet_medicalhistory";
     // this is the default number which will be stored as emergency numbers
     private static final long DEFAULT_EMERGENCY_NUMBER = 0;
+
+    public static final long BIKE_MILEAGE = 1507;
+    public static final long BIKE_RADUIS = 24;
+    public static final long FUEL_LIMIT = 5;
+
+// fuelconsumed = (no of revolutions)*(2*PI*R)
 
 
     // these are the variables which hold the numbers them self
@@ -120,6 +136,11 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             return;
         }
         Intent intent = new Intent(this, BargraphDisplay.class);
+        startActivity(intent);
+    }
+
+    public void showDetails(View view) {
+        Intent intent = new Intent(this, Details.class);
         startActivity(intent);
     }
 
@@ -195,7 +216,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         String servertemp;
         protected String doInBackground(Void...arg0) {
             try {
-                URL url = new URL("http://742ece35.ngrok.com/a.txt");
+                URL url = new URL(Home.BASE_SERVER_URL+"a.txt");
                 Log.i("the empId", "");
 
                 URLConnection connection = url.openConnection();
@@ -228,7 +249,6 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                 Log.i("IOException", "connection with server");
                 e.printStackTrace();
             }
-            Log.i("gt",servertemp);
             return "";
         }
 
@@ -243,9 +263,19 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                 Log.i("gt","overspeeding");
 
                 SmsManager smsManager =     SmsManager.getDefault();
-                smsManager.sendTextMessage("8754302349", null, "Overspeeding", null, null);
+                SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.USER, MODE_PRIVATE);
+                say_this("You are Over-speeding, Please slow down");
+                smsManager.sendTextMessage("8754302349", null, pref.getString(Home.USER_NUMBER_NAME,"The bike")+" is Overspeeding", null, null);
 
                 new reset().execute();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("DEBUG","delay");
+                    }
+                }, 50000);
+
             }
 
             if(servertemp.matches("2"))
@@ -256,6 +286,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                 smsManager.sendTextMessage("8754302349", null, "Accident", null, null);
 
                 new reset().execute();
+
 
             }
 
@@ -268,42 +299,18 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     public class reset extends AsyncTask<Void, Integer, String> {
 
         protected String doInBackground(Void...arg0) {
+            HttpClient client = new DefaultHttpClient();
+            HttpGet httpGet = new HttpGet(Home.BASE_SERVER_URL+"/bike.php?some=0");
             try {
-                URL url = new URL("http://742ece35.ngrok.com/bike.php?some=0");
-                Log.i("the empId", "");
+                HttpResponse response = client.execute(httpGet);
+                return response.toString();
 
-                URLConnection connection = url.openConnection();
-                InputStream inputStream = connection.getInputStream();
-
-                String encoding = connection.getContentEncoding();
-                if (encoding == null) encoding = "UTF-8";
-
-                ByteArrayOutputStream outputByteByByte = new ByteArrayOutputStream();
-                byte[] buffer = new byte[8192];
-                int len;
-                try {
-                    // Read the inputStream using the buffer
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        // write what you get to the outputByteByByte variable
-                        outputByteByByte.write(buffer, 0, len);
-                    }
-
-                    serverResponse = new String(outputByteByByte.toByteArray(), encoding);
-
-                } catch (IOException e) {
-                    Log.i("IOException", "buffer to outputByteByByte");
-                    e.printStackTrace();
-                }
-
-            } catch (MalformedURLException e) {
-                Log.i("MalformedURLException", "URL not in proper format");
-                e.printStackTrace();
             } catch (IOException e) {
-                Log.i("IOException", "connection with server");
                 e.printStackTrace();
             }
 
-            return "";
+            return null;
+
         }
 
         protected void onProgressUpdate(Integer...a){
@@ -395,7 +402,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
     Double fuelRemaining;
     public void notification()
     {
-        if(!(fuelRemaining.intValue()<30))
+        if(!(fuelRemaining.intValue()<Home.FUEL_LIMIT))
             return;
         Log.i("gt","not");
         int icon = R.drawable.ic_launcher;
@@ -403,6 +410,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         NotificationManager notificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = new Notification(icon, "Petrol is low", when);
+        say_this("You are running low on petrol");
 
         String title = this.getString(R.string.app_name);
 
@@ -498,6 +506,9 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        if(!isNetworkConnected()){
+            finish();
+        }
         new getRevolutions().execute();
         new acc().execute();
         //notification();
@@ -508,9 +519,6 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             String towrite = "geo:" + lat1 + "," + lon1;
             Log.i("gt", towrite);
         }
-        AudioManager am;
-        am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-        //am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
 
         mSMSreceiver = new SMSreceiver();
         IntentFilter mIntentFilter = new IntentFilter();
@@ -528,7 +536,10 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
         // Here we initialize it, to get ready for conversion
         textToSpeech = new TextToSpeech(this, this);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Home.USER, MODE_PRIVATE);
+        String name = pref.getString(Home.USER_NUMBER_NAME, "Dude");
 
+        ((TextView)findViewById(R.id.textViewhellouser)).setText("Hello "+name);
     }
 
     // At the end of the activity close the handle used for text conversion and stop pinging the server
@@ -540,7 +551,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         unregisterReceiver(mSMSreceiver);
         AudioManager am;
         am= (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-        //am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         BluetoothAdapter.getDefaultAdapter().disable();
         super.onDestroy();
     }
@@ -555,7 +566,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
 
     //TODO  A deprecated function - speak
     private void say_welcome() {
-        String text = "Welcome to Smart Helmet";
+        String text = "Welcome to the Smart Bike Android application";
         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
     }
 
@@ -604,6 +615,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
         public void onCallStateChanged(int state, String incomingNumber) {
                 switch (state) {
                     case TelephonyManager.CALL_STATE_RINGING:
+                        say_this("check 2 looking at ringing");
                         // Its ringing
                         //TextView tv = (TextView)findViewById(R.id.textView6); used for DEBUGGING TODO delete this
                         //say_this("You are getting a call from " + getContactName(incomingNumber));
@@ -621,36 +633,20 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                         }
 
                         Log.i("DEBUG",caller);
-                        say_this("You are getting a call from " +caller );
+                        say_this("You are getting a call from " + caller);
                         Log.i("CAll CAME","yo");
+
                         break;
 
                     case TelephonyManager.CALL_STATE_OFFHOOK:
-                        // do something...
-                        if(call_came==1)
-                        {
-                            say_this("You recieved a call from " + getContactName(incomingNumber));
-                            call_came=0;
-                        }
                         Log.d(incomingNumber, "Unknown phone state=" + state);
                         break;
 
                     case TelephonyManager.CALL_STATE_IDLE:
-                        // do something...
-                        if(call_came==1)
-                        {
-                            say_this("You recieved a call from " + getContactName(incomingNumber));
-                            call_came=0;
-                        }
                         Log.d(incomingNumber, "Unknown phone state=" + state);
                         break;
                     default:
-                        if(call_came==1)
-                        {
-                            say_this("You recieved a call from " + getContactName(incomingNumber));
-                            call_came=0;
-                        }
-                        Log.d(incomingNumber, "Unknown phone state=" + state);
+                        Log.d("DEBUG", "Unknown phone state=" + state);
                 }
         }
     };
@@ -685,7 +681,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                 Log.e("error", "This Language is not supported");
             } else {
                 // Welcome the user to the application TODO  do we need this? it takes time for this message to be spoken, doesn't serve a purpose
-                say_welcome();
+                //say_welcome();
             }
         } else {
             Log.e("error", "Initialization Failed!");
@@ -724,7 +720,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
                         }
                         strMessage += "You received a SMS from " + sender + " : " + strMsgBody;
                         say_this(strMessage);
-                        Log.i(TAG, strMessage);
+                        Log.i("DEBUG", strMessage);
                     }
                 }
 
@@ -772,7 +768,7 @@ public class Home extends ActionBarActivity implements TextToSpeech.OnInitListen
             Log.e(this.getClass().toString(), "", e);
         }
         */
-        // Now take user to the page where the user can set the source and desti
+        // Now take user to the page where the user can set the source and destination
         Intent intent = new Intent(this, SetDestination.class);
         startActivity(intent);
 

@@ -158,6 +158,7 @@ public class SetDestination extends ActionBarActivity {
             Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                     Uri.parse("google.navigation:q="+destination.getText().toString()));
             startActivity(intent);
+            return;
         }
 
         // Initialize a Location manager variable
@@ -172,7 +173,7 @@ public class SetDestination extends ActionBarActivity {
             return;
         }
 
-        Address source_address = get_location_from_address(source.getText().toString());
+        Address source_address      = get_location_from_address(source.getText().toString());
         Address destination_address = get_location_from_address(destination.getText().toString());
 
         if (checkFuelAvailability(source_address,destination_address)) {
